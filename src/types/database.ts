@@ -333,18 +333,36 @@ export type Database = {
           conversation_id: string
           user_id: string
           joined_at: string
+          last_read_at: string
         }
         Insert: {
           conversation_id: string
           user_id: string
           joined_at?: string
+          last_read_at?: string
         }
         Update: {
           conversation_id?: string
           user_id?: string
           joined_at?: string
+          last_read_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'conversation_members_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'conversations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'conversation_members_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       messages: {
         Row: {
@@ -353,9 +371,11 @@ export type Database = {
           sender_id: string
           content: string | null
           attachment_url: string | null
+          attachment_path: string | null
           created_at: string
           edited_at: string | null
           deleted_at: string | null
+          updated_at: string
         }
         Insert: {
           id?: string
@@ -363,9 +383,11 @@ export type Database = {
           sender_id: string
           content?: string | null
           attachment_url?: string | null
+          attachment_path?: string | null
           created_at?: string
           edited_at?: string | null
           deleted_at?: string | null
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -373,11 +395,28 @@ export type Database = {
           sender_id?: string
           content?: string | null
           attachment_url?: string | null
+          attachment_path?: string | null
           created_at?: string
           edited_at?: string | null
           deleted_at?: string | null
+          updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'messages_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'conversations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_sender_id_fkey'
+            columns: ['sender_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       notifications: {
         Row: {
@@ -427,7 +466,7 @@ export type Database = {
         }
         Insert: {
           id?: string
-          reporter_id?: string
+          reporter_id: string
           post_id?: string | null
           comment_id?: string | null
           reason: string
@@ -575,6 +614,37 @@ export type Database = {
           mutual_count: number
         }[]
       }
+      get_or_create_direct_conversation: {
+        Args: {
+          p_other_user_id: string
+        }
+        Returns: string
+      }
+      get_user_conversations: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          conversation_id: string
+          other_user: Json
+          last_message: Json
+          unread_count: number
+          is_blocked: boolean
+          updated_at: string
+        }[]
+      }
+      mark_conversation_read: {
+        Args: {
+          p_conversation_id: string
+        }
+        Returns: void
+      }
+      get_total_unread_messages_count: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: number
+      }
     }
     Enums: { [_ in never]: never }
     CompositeTypes: { [_ in never]: never }
@@ -591,3 +661,4 @@ export type Story = Database['public']['Tables']['stories']['Row']
 export type Message = Database['public']['Tables']['messages']['Row']
 export type Notification = Database['public']['Tables']['notifications']['Row']
 export type Block = Database['public']['Tables']['blocks']['Row']
+export type ConversationMember = Database['public']['Tables']['conversation_members']['Row']
