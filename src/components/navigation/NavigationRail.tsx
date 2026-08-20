@@ -31,7 +31,7 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
 
   // Load saved sidebar state
   useEffect(() => {
-    const saved = localStorage.getItem('pixora-sidebar-collapsed')
+    const saved = localStorage.getItem('zeloria-sidebar-collapsed')
     if (saved === 'true') {
       setIsCollapsed(true)
     }
@@ -40,7 +40,7 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
       const next = !prev
-      localStorage.setItem('pixora-sidebar-collapsed', String(next))
+      localStorage.setItem('zeloria-sidebar-collapsed', String(next))
       return next
     })
   }
@@ -64,7 +64,7 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
         {/* Brand Header & Toggle Button */}
         {isCollapsed ? (
           <div className="flex flex-col items-center gap-3">
-            <Link href="/" className="group" title="Pixora Home">
+            <Link href="/" className="group" title="Zeloria Home">
               <div className="w-10 h-10 rounded-2xl border border-fuchsia-500/40 bg-fuchsia-500/10 p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-fuchsia-400" />
               </div>
@@ -84,7 +84,7 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
                 <Sparkles className="w-5 h-5 text-fuchsia-400" />
               </div>
               <span className="text-xl font-black tracking-wider gradient-text uppercase truncate">
-                Pixora
+                Zeloria
               </span>
             </Link>
 

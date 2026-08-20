@@ -28,8 +28,8 @@ export function Header() {
     <header className="sticky top-0 z-30 w-full bg-slate-950/70 backdrop-blur-2xl border-b border-white/10 px-4 py-3 flex items-center justify-between gap-4">
       {/* Mobile Brand Logo */}
       <Link href="/" className="flex md:hidden items-center gap-2 shrink-0">
-        <Sparkles className="w-5 h-5 text-pink-500" />
-        <span className="text-lg font-black tracking-wider gradient-text uppercase">Pixora</span>
+        <Sparkles className="w-5 h-5 text-fuchsia-400" />
+        <span className="text-lg font-black tracking-wider gradient-text uppercase">Zeloria</span>
       </Link>
 
       {/* Global Search Bar with 300ms Debounce */}
@@ -46,9 +46,9 @@ export function Header() {
           className="relative p-2.5 rounded-full text-slate-300 hover:text-white hover:bg-slate-900 transition-all cursor-pointer"
           title="Notifications"
         >
-          <Heart className="w-5 h-5 text-pink-400" />
+          <Heart className="w-5 h-5 text-fuchsia-400" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-extrabold shadow-md shadow-pink-500/30">
+            <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-extrabold shadow-md shadow-fuchsia-500/30">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}

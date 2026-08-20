@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { PostCard } from '@/components/posts/PostCard'
+import { FollowButton } from '@/components/profile/FollowButton'
 import { Search, User } from 'lucide-react'
 
 interface SearchPageProps {
@@ -14,7 +15,7 @@ interface SearchPageProps {
 export async function generateMetadata({ searchParams }: SearchPageProps) {
   const { q } = await searchParams
   return {
-    title: q ? `Search: "${q}" • Pixora` : 'Search • Pixora',
+    title: q ? `Search: "${q}" • Zeloria` : 'Search • Zeloria',
   }
 }
 
@@ -88,7 +89,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3">
-        <Search className="w-6 h-6 text-pink-500" />
+        <Search className="w-6 h-6 text-fuchsia-400" />
         <h1 className="text-2xl font-bold text-white">Search Results</h1>
       </div>
 
@@ -97,7 +98,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <Link
           href={`/search?q=${encodeURIComponent(query)}&tab=users`}
           className={`py-3 border-b-2 transition-colors ${
-            tab === 'users' ? 'border-pink-500 text-pink-400' : 'border-transparent text-slate-400 hover:text-white'
+            tab === 'users' ? 'border-fuchsia-500 text-fuchsia-400' : 'border-transparent text-slate-400 hover:text-white'
           }`}
         >
           ACCOUNTS ({userResults.length})
@@ -105,7 +106,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <Link
           href={`/search?q=${encodeURIComponent(query)}&tab=posts`}
           className={`py-3 border-b-2 transition-colors ${
-            tab === 'posts' ? 'border-pink-500 text-pink-400' : 'border-transparent text-slate-400 hover:text-white'
+            tab === 'posts' ? 'border-fuchsia-500 text-fuchsia-400' : 'border-transparent text-slate-400 hover:text-white'
           }`}
         >
           POSTS ({postResults.length})
@@ -124,27 +125,35 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {userResults.map((u) => (
-                <Link
+                <div
                   key={u.id}
-                  href={`/profile/${u.username}`}
-                  className="glass-card p-4 rounded-2xl border border-white/10 hover:border-pink-500/40 flex items-center gap-4 transition-all"
+                  className="glass-card p-4 rounded-2xl border border-white/10 hover:border-fuchsia-500/40 flex items-center justify-between gap-4 transition-all"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 p-0.5 shrink-0 shadow-md">
-                    <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-sm text-white overflow-hidden">
-                      {u.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
-                      ) : (
-                        u.display_name?.[0]?.toUpperCase() || u.username[0]?.toUpperCase()
-                      )}
+                  <Link
+                    href={`/profile/${u.username}`}
+                    className="flex items-center gap-3 overflow-hidden flex-1"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 p-0.5 shrink-0 shadow-md">
+                      <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-sm text-white overflow-hidden">
+                        {u.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
+                        ) : (
+                          u.display_name?.[0]?.toUpperCase() || u.username[0]?.toUpperCase()
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-bold text-white truncate">{u.display_name || u.username}</p>
-                    <p className="text-xs text-purple-400 truncate">@{u.username}</p>
-                    {u.bio && <p className="text-[11px] text-slate-400 truncate mt-0.5">{u.bio}</p>}
-                  </div>
-                </Link>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-bold text-white truncate">{u.display_name || u.username}</p>
+                      <p className="text-xs text-fuchsia-400 truncate">@{u.username}</p>
+                      {u.bio && <p className="text-[11px] text-slate-400 truncate mt-0.5">{u.bio}</p>}
+                    </div>
+                  </Link>
+
+                  {currentUser?.id !== u.id && (
+                    <FollowButton targetUserId={u.id} isPrivate={u.is_private} />
+                  )}
+                </div>
               ))}
             </div>
           )}

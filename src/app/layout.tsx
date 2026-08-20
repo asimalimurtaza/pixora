@@ -8,8 +8,8 @@ import { PresenceProvider } from '@/components/providers/PresenceProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Pixora • Share your story',
-  description: 'A modern social platform built with Next.js, Tailwind CSS, and Supabase.',
+  title: 'Zeloria • Share your story',
+  description: 'A modern visual social platform for creators and communities.',
 }
 
 export default function RootLayout({

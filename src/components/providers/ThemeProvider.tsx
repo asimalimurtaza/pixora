@@ -36,13 +36,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    const savedMode = (localStorage.getItem('pixora-theme-mode') as ThemeMode) || 'dark'
+    const savedMode = (localStorage.getItem('zeloria-theme-mode') as ThemeMode) || 'dark'
     setThemeModeState(savedMode)
     applyTheme(savedMode)
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleSystemChange = () => {
-      if (localStorage.getItem('pixora-theme-mode') === 'system') {
+      if (localStorage.getItem('zeloria-theme-mode') === 'system') {
         applyTheme('system')
       }
     }
@@ -53,7 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setThemeMode = (mode: ThemeMode) => {
     setThemeModeState(mode)
-    localStorage.setItem('pixora-theme-mode', mode)
+    localStorage.setItem('zeloria-theme-mode', mode)
     applyTheme(mode)
   }
 
