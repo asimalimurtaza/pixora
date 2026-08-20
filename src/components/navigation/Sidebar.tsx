@@ -67,8 +67,8 @@ export function Sidebar({ userProfile }: SidebarProps) {
       <div className="space-y-6">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 px-3 py-2">
-          <Sparkles className="w-6 h-6 text-sky-400" />
-          <span className="text-2xl font-black tracking-wider gradient-text uppercase">Pixora</span>
+          <Sparkles className="w-6 h-6 text-fuchsia-400" />
+          <span className="text-2xl font-black tracking-wider gradient-text uppercase">Zeloria</span>
         </Link>
 
         {/* Nav Links */}
@@ -82,11 +82,11 @@ export function Sidebar({ userProfile }: SidebarProps) {
                 href={item.href}
                 className={`flex items-center gap-4 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                   isActive
-                    ? 'bg-gradient-to-r from-indigo-500/20 to-sky-500/20 text-white border border-indigo-500/30 shadow-md'
+                    ? 'bg-gradient-to-r from-fuchsia-500/20 to-purple-500/20 text-white border border-fuchsia-500/30 shadow-md'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-fuchsia-400' : 'text-slate-400'}`} />
                 <span>{item.label}</span>
               </Link>
             )
@@ -101,7 +101,7 @@ export function Sidebar({ userProfile }: SidebarProps) {
           onClick={toggleTheme}
           className="w-full flex items-center gap-4 px-3.5 py-2.5 rounded-2xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all cursor-pointer"
         >
-          {activeTheme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-400" />}
+          {activeTheme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-fuchsia-400" />}
           <span>{activeTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
         </button>
 
@@ -109,7 +109,7 @@ export function Sidebar({ userProfile }: SidebarProps) {
         {userProfile && (
           <div className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-800/40 border border-slate-700/50">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-500 p-0.5 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 p-0.5 shrink-0">
                 <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-white">
                   {userProfile.display_name?.[0]?.toUpperCase() || userProfile.username[0]?.toUpperCase() || 'U'}
                 </div>

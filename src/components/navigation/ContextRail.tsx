@@ -77,7 +77,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
             href={`/profile/${currentUserProfile.username}`}
             className="flex items-center gap-3 overflow-hidden"
           >
-            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-500 p-0.5 shrink-0 shadow-md">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 p-0.5 shrink-0 shadow-md">
               <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-white overflow-hidden">
                 {currentUserProfile.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -101,7 +101,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
 
           <Link
             href="/settings"
-            className="text-xs font-bold text-sky-400 hover:underline"
+            className="text-xs font-bold text-fuchsia-400 hover:underline"
           >
             Settings
           </Link>
@@ -112,7 +112,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
       <div className="glass-card rounded-3xl p-5 border border-white/10 shadow-2xl space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-sky-400" />
+            <Users className="w-4 h-4 text-fuchsia-400" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Creators for You
             </h3>
@@ -125,7 +125,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
         <div className="space-y-3">
           {loading ? (
             <div className="flex justify-center py-4">
-              <Loader2 className="w-4 h-4 text-sky-400 animate-spin" />
+              <Loader2 className="w-4 h-4 text-fuchsia-400 animate-spin" />
             </div>
           ) : suggestions.length === 0 ? (
             <p className="text-[11px] text-slate-500 text-center py-2">
@@ -138,7 +138,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
                   href={`/profile/${u.username}`}
                   className="flex items-center gap-2.5 overflow-hidden flex-1"
                 >
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-500 p-0.5 shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 p-0.5 shrink-0">
                     <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-[10px] text-white overflow-hidden">
                       {u.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -149,7 +149,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
                     </div>
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-xs font-bold text-white truncate hover:text-sky-400 transition-colors">
+                    <p className="text-xs font-bold text-white truncate hover:text-fuchsia-400 transition-colors">
                       {u.display_name || u.username}
                     </p>
                     <p className="text-[10px] text-slate-400 truncate">
@@ -174,7 +174,7 @@ export function ContextRail({ currentUserProfile }: ContextRailProps) {
           <a href="#" className="hover:underline">Terms</a>
         </p>
         <p className="text-[10px] flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-sky-400" /> © 2026 PIXORA INC.
+          <Sparkles className="w-3 h-3 text-fuchsia-400" /> © 2026 ZELORIA INC.
         </p>
       </div>
     </aside>

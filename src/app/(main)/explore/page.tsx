@@ -1,117 +1,142 @@
 import React from 'react'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { ExploreGrid } from '@/components/explore/ExploreGrid'
-import { Compass, Flame, Clock } from 'lucide-react'
-
-interface ExplorePageProps {
-  searchParams: Promise<{
-    tab?: string
-  }>
-}
+import { Compass, Sparkles, TrendingUp } from 'lucide-react'
 
 export const metadata = {
-  title: 'Explore & Trending • Pixora',
-  description: 'Discover trending posts and popular creators across Pixora.',
+  title: 'Explore & Trending • Zeloria',
+  description: 'Discover trending posts and popular creators across Zeloria.',
 }
 
-export default async function ExplorePage({ searchParams }: ExplorePageProps) {
-  const { tab = 'trending' } = await searchParams
+export default async function ExplorePage() {
   const supabase = await createClient()
 
   const {
-    data: { user: currentUser },
+    data: { user },
   } = await supabase.auth.getUser()
 
-  let rawPosts: any[] = []
+  // Fetch explore feed posts
+  const { data: rawPosts } = await supabase.rpc('get_explore_feed', {
+    p_viewer_id: user?.id ?? undefined,
+    p_limit: 15,
+  })
 
-  if (tab === 'trending') {
-    // Call get_trending_posts RPC
-    const { data } = await supabase.rpc('get_trending_posts', {
-      p_viewer_id: currentUser?.id ?? undefined,
-      p_limit: 18,
-    })
-    if (data) rawPosts = data as any[]
-  } else {
-    // Call get_explore_feed RPC
-    const { data } = await supabase.rpc('get_explore_feed', {
-      p_viewer_id: currentUser?.id ?? undefined,
-      p_limit: 18,
-    })
-    if (data) rawPosts = data as any[]
+  let posts: any[] = []
+  if (rawPosts && rawPosts.length > 0) {
+    posts = await Promise.all(
+      (rawPosts as any[]).map(async (p) => {
+        const [{ data: userProfile }, { data: mediaRows }, { count: likesCount }, { count: commentsCount }, { data: userLike }, { data: userSaved }] =
+          await Promise.all([
+            supabase.from('profiles').select('id, username, display_name, avatar_url').eq('id', p.user_id).single(),
+            supabase.from('post_media').select('id, media_url, media_type, position').eq('post_id', p.id).order('position', { ascending: true }),
+            supabase.from('likes').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
+            supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
+            user ? supabase.from('likes').select('*').eq('post_id', p.id).eq('user_id', user.id).single() : Promise.resolve({ data: null }),
+            user ? supabase.from('saved_posts').select('*').eq('post_id', p.id).eq('user_id', user.id).single() : Promise.resolve({ data: null }),
+          ])
+
+        return {
+          ...p,
+          user: userProfile || { id: p.user_id, username: 'creator', display_name: 'Creator', avatar_url: null },
+          media: mediaRows || [],
+          likesCount: likesCount || 0,
+          commentsCount: commentsCount || 0,
+          isLiked: !!userLike,
+          isSaved: !!userSaved,
+        }
+      })
+    )
   }
 
-  // Enrich post results with user, media, likes count, comments count
-  const explorePosts = await Promise.all(
-    rawPosts.map(async (p: any) => {
-      const [{ data: userProfile }, { data: mediaRows }, { count: likesCount }, { count: commentsCount }, { data: userLike }, { data: userSaved }] =
-        await Promise.all([
-          supabase.from('profiles').select('id, username, display_name, avatar_url').eq('id', p.user_id).single(),
-          supabase.from('post_media').select('id, media_url, media_type, position').eq('post_id', p.id).order('position', { ascending: true }),
-          supabase.from('likes').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
-          supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
-          currentUser
-            ? supabase.from('likes').select('*').eq('post_id', p.id).eq('user_id', currentUser.id).single()
-            : Promise.resolve({ data: null }),
-          currentUser
-            ? supabase.from('saved_posts').select('*').eq('post_id', p.id).eq('user_id', currentUser.id).single()
-            : Promise.resolve({ data: null }),
-        ])
+  // Fetch trending posts
+  const { data: rawTrending } = await supabase.rpc('get_trending_posts', {
+    p_viewer_id: user?.id ?? undefined,
+    p_limit: 4,
+  })
 
-      return {
-        ...p,
-        user: userProfile || { id: p.user_id, username: 'user', display_name: 'User', avatar_url: null },
-        media: mediaRows || [],
-        likesCount: likesCount || 0,
-        commentsCount: commentsCount || 0,
-        isLiked: !!userLike,
-        isSaved: !!userSaved,
-      }
-    })
-  )
+  let trendingPosts: any[] = []
+  if (rawTrending && rawTrending.length > 0) {
+    trendingPosts = await Promise.all(
+      (rawTrending as any[]).map(async (p) => {
+        const [{ data: userProfile }, { data: mediaRows }, { count: likesCount }, { count: commentsCount }] =
+          await Promise.all([
+            supabase.from('profiles').select('id, username, display_name, avatar_url').eq('id', p.user_id).single(),
+            supabase.from('post_media').select('id, media_url, media_type, position').eq('post_id', p.id).order('position', { ascending: true }),
+            supabase.from('likes').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
+            supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
+          ])
+
+        return {
+          ...p,
+          user: userProfile || { id: p.user_id, username: 'creator', display_name: 'Creator', avatar_url: null },
+          media: mediaRows || [],
+          likesCount: likesCount || 0,
+          commentsCount: commentsCount || 0,
+        }
+      })
+    )
+  }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div className="flex items-center gap-3">
-          <Compass className="w-6 h-6 text-pink-500" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Explore</h1>
-            <p className="text-xs text-slate-400">Discover public photos, carousels & popular creators</p>
+    <div className="space-y-8 max-w-5xl mx-auto">
+      {/* Header Banner */}
+      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/10 relative overflow-hidden shadow-2xl flex items-center justify-between">
+        <div className="space-y-2 z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400 text-xs font-semibold">
+            <Compass className="w-3.5 h-3.5" /> Explore Discovery
           </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+            Discover What&apos;s <span className="gradient-text">Trending</span>
+          </h1>
+          <p className="text-xs text-slate-400 max-w-md">
+            Explore photos, moments, and popular creators across the Zeloria network.
+          </p>
         </div>
-
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 self-start sm:self-auto">
-          <Link
-            href="/explore?tab=trending"
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              tab === 'trending'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Flame className="w-4 h-4 text-amber-400" />
-            Trending
-          </Link>
-
-          <Link
-            href="/explore?tab=latest"
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              tab === 'latest'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Clock className="w-4 h-4 text-sky-400" />
-            Latest
-          </Link>
+        <div className="hidden md:block p-4 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl">
+          <Sparkles className="w-12 h-12 text-fuchsia-400" />
         </div>
       </div>
 
-      {/* Explore Masonry Grid */}
-      <ExploreGrid posts={explorePosts as any} currentUserId={currentUser?.id} />
+      {/* Trending Spotlight Carousel */}
+      {trendingPosts.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-1">
+            <TrendingUp className="w-4 h-4 text-fuchsia-400" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Trending Spotlight
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {trendingPosts.map((tp) => (
+              <div
+                key={tp.id}
+                className="group relative aspect-square rounded-2xl overflow-hidden glass-card border border-white/10 shadow-lg cursor-pointer"
+              >
+                {tp.media[0] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={tp.media[0].media_url}
+                    alt={tp.caption || 'Trending Post'}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                  <p className="text-xs font-bold text-white truncate">@{tp.user.username}</p>
+                  <p className="text-[10px] text-fuchsia-300 font-semibold">{tp.likesCount} likes</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Main Explore Grid */}
+      <div className="space-y-4">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300 px-1">
+          Community Stream
+        </h2>
+        <ExploreGrid posts={posts} currentUserId={user?.id} />
+      </div>
     </div>
   )
 }
