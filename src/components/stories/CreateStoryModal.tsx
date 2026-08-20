@@ -58,7 +58,7 @@ export function CreateStoryModal({ onClose, onStoryCreated }: CreateStoryModalPr
       if (error) {
         showToast(error.message, 'error')
       } else {
-        showToast('Story published for 24 hours! ✨', 'success')
+        showToast('Story published for 24 hours!', 'success')
         onStoryCreated()
         onClose()
       }

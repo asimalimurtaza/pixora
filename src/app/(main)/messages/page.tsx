@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ConversationList } from '@/components/chat/ConversationList'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 import { useToast } from '@/components/ui/Toast'
-import { MessageSquare, Loader2, Sparkles } from 'lucide-react'
+import { MessageSquare, Loader2 } from 'lucide-react'
 
 function MessagesContent() {
   const searchParams = useSearchParams()
@@ -62,16 +62,25 @@ function MessagesContent() {
         }
       } else if (conversationParam) {
         setActiveConversationId(conversationParam)
-        // Fetch conversation partner
-        const { data: members } = await supabase
+        
+        // Query conversation partner reliably
+        const { data: memberRows } = await supabase
           .from('conversation_members')
-          .select('user:profiles!conversation_members_user_id_fkey(id, username, display_name, avatar_url)')
+          .select('user_id')
           .eq('conversation_id', conversationParam)
           .neq('user_id', user.id)
-          .single()
 
-        if (members && (members as any).user) {
-          setActivePartner((members as any).user)
+        if (memberRows && memberRows.length > 0) {
+          const partnerId = memberRows[0].user_id
+          const { data: partnerProfile } = await supabase
+            .from('profiles')
+            .select('id, username, display_name, avatar_url')
+            .eq('id', partnerId)
+            .single()
+
+          if (partnerProfile) {
+            setActivePartner(partnerProfile)
+          }
         }
       }
 
@@ -84,7 +93,7 @@ function MessagesContent() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
-        <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-sky-400 animate-spin" />
       </div>
     )
   }
@@ -124,7 +133,7 @@ function MessagesContent() {
           />
         ) : (
           <div className="flex-1 h-full rounded-3xl glass-card border border-white/10 flex flex-col items-center justify-center p-8 text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-pink-400 shadow-lg">
+            <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-sky-400 shadow-lg">
               <MessageSquare className="w-8 h-8" />
             </div>
             <h2 className="text-lg font-bold text-white">Your Direct Messages</h2>
@@ -140,7 +149,7 @@ function MessagesContent() {
 
 export default function MessagesPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-pink-500 animate-spin" /></div>}>
+    <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-sky-400 animate-spin" /></div>}>
       <MessagesContent />
     </Suspense>
   )

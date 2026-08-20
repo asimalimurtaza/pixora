@@ -89,7 +89,7 @@ export function PostCard({ post, currentUserId, onPostDeleted }: PostCardProps) 
       {/* Author Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-800/60">
         <Link href={`/profile/${post.user.username}`} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 via-purple-600 to-blue-500 p-0.5 shrink-0">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-500 p-0.5 shrink-0 shadow-md">
             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-white overflow-hidden">
               {post.user.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -105,11 +105,11 @@ export function PostCard({ post, currentUserId, onPostDeleted }: PostCardProps) 
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xs font-bold text-white hover:text-pink-400 transition-colors">
+              <h3 className="text-xs font-bold text-white hover:text-sky-400 transition-colors">
                 {post.user.display_name || post.user.username}
               </h3>
               {post.visibility === 'public' && <span title="Public"><Globe className="w-3 h-3 text-slate-400" /></span>}
-              {post.visibility === 'followers_only' && <span title="Followers only"><Users className="w-3 h-3 text-purple-400" /></span>}
+              {post.visibility === 'followers_only' && <span title="Followers only"><Users className="w-3 h-3 text-indigo-400" /></span>}
               {post.visibility === 'private' && <span title="Private"><Lock className="w-3 h-3 text-amber-400" /></span>}
             </div>
             <p className="text-[10px] text-slate-400">
@@ -168,7 +168,7 @@ export function PostCard({ post, currentUserId, onPostDeleted }: PostCardProps) 
               onClick={() => setShowComments(!showComments)}
               className="flex items-center gap-1.5 p-2 rounded-full text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all cursor-pointer"
             >
-              <MessageCircle className="w-6 h-6" />
+              <MessageCircle className="w-6 h-6 text-sky-400" />
               <span className="text-xs font-bold text-slate-200">{commentCount}</span>
             </button>
 
@@ -187,7 +187,7 @@ export function PostCard({ post, currentUserId, onPostDeleted }: PostCardProps) 
         {captionText && (
           <div className="text-xs text-slate-200 space-y-1">
             <p>
-              <Link href={`/profile/${post.user.username}`} className="font-bold text-white mr-2 hover:text-pink-400">
+              <Link href={`/profile/${post.user.username}`} className="font-bold text-white mr-2 hover:text-sky-400">
                 @{post.user.username}
               </Link>
               {isCaptionLong && !expandedCaption ? (
@@ -211,7 +211,7 @@ export function PostCard({ post, currentUserId, onPostDeleted }: PostCardProps) 
         {commentCount > 0 && !showComments && (
           <button
             onClick={() => setShowComments(true)}
-            className="text-xs font-medium text-slate-400 hover:text-pink-400 transition-colors pt-1"
+            className="text-xs font-medium text-slate-400 hover:text-sky-400 transition-colors pt-1"
           >
             View all {commentCount} comments
           </button>
