@@ -65,8 +65,8 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
         {isCollapsed ? (
           <div className="flex flex-col items-center gap-3">
             <Link href="/" className="group" title="Pixora Home">
-              <div className="w-10 h-10 rounded-2xl border border-indigo-500/40 bg-indigo-500/10 p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-sky-400" />
+              <div className="w-10 h-10 rounded-2xl border border-fuchsia-500/40 bg-fuchsia-500/10 p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-fuchsia-400" />
               </div>
             </Link>
             <button
@@ -80,8 +80,8 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
         ) : (
           <div className="flex items-center justify-between px-2">
             <Link href="/" className="flex items-center gap-3 overflow-hidden group">
-              <div className="w-10 h-10 rounded-2xl border border-indigo-500/40 bg-indigo-500/10 p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-sky-400" />
+              <div className="w-10 h-10 rounded-2xl border border-fuchsia-500/40 bg-fuchsia-500/10 p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-fuchsia-400" />
               </div>
               <span className="text-xl font-black tracking-wider gradient-text uppercase truncate">
                 Pixora
@@ -116,11 +116,11 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
                   isCollapsed ? 'justify-center' : ''
                 } ${
                   isActive
-                    ? 'active-nav-item border border-indigo-500/40 bg-indigo-500/10 text-sky-400 font-bold shadow-xs'
+                    ? 'active-nav-item border border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-400 font-bold shadow-xs'
                     : 'border border-transparent text-slate-400 hover:text-white hover:bg-slate-900/50 hover:border-slate-800/80'
                 }`}
               >
-                <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${isActive ? 'text-sky-400' : ''}`} />
+                <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${isActive ? 'text-fuchsia-400' : ''}`} />
                 {!isCollapsed && <span className="text-xs truncate">{item.label}</span>}
               </Link>
             )
@@ -131,11 +131,11 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
         <Link
           href="/create"
           title={isCollapsed ? 'Create Post' : undefined}
-          className={`flex items-center gap-3 w-full p-3 rounded-2xl border border-indigo-500/50 bg-indigo-500/10 hover:bg-indigo-500/20 text-sky-300 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-3 w-full p-3 rounded-2xl border border-fuchsia-500/50 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-300 text-xs font-bold transition-all cursor-pointer ${
             isCollapsed ? 'justify-center' : 'justify-start'
           }`}
         >
-          <PlusSquare className="w-5 h-5 shrink-0 text-sky-400" />
+          <PlusSquare className="w-5 h-5 shrink-0 text-fuchsia-400" />
           {!isCollapsed && <span className="truncate">Create Post</span>}
         </Link>
       </div>
@@ -161,7 +161,7 @@ export function NavigationRail({ userProfile }: NavigationRailProps) {
               isCollapsed ? 'justify-center' : ''
             }`}
           >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-500 p-0.5 shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 p-0.5 shrink-0">
               <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-white overflow-hidden">
                 {userProfile.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element

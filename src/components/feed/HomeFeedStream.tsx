@@ -19,48 +19,22 @@ export function HomeFeedStream({
 }: HomeFeedStreamProps) {
   const supabase = createClient()
 
-  // Fetcher function calling get_home_feed RPC
+  // Fetcher function calling single-query get_home_feed_v2 RPC (0 N+1 roundtrips)
   const fetchMorePosts = useCallback(
-    async (cursorCreatedAt?: string, cursorId?: string) => {
-      const { data: rawPosts, error } = await supabase.rpc('get_home_feed', {
+    async (cursorCreatedAt?: string) => {
+      const { data: rawPosts, error } = await supabase.rpc('get_home_feed_v2', {
         p_user_id: currentUserId,
-        p_limit: 5,
-        p_cursor_created_at: cursorCreatedAt ?? undefined,
-        p_cursor_id: cursorId ?? undefined,
+        p_limit: 6,
+        p_cursor: cursorCreatedAt ?? undefined,
       })
 
-      if (error || !rawPosts || rawPosts.length === 0) {
+      if (error || !rawPosts || !Array.isArray(rawPosts) || rawPosts.length === 0) {
         return { posts: [], hasMore: false }
       }
 
-      // Enrich fetched posts with media, like/comment counts & user like state
-      const enriched = await Promise.all(
-        (rawPosts as any[]).map(async (p) => {
-          const [{ data: userProfile }, { data: mediaRows }, { count: likesCount }, { count: commentsCount }, { data: userLike }, { data: userSaved }] =
-            await Promise.all([
-              supabase.from('profiles').select('id, username, display_name, avatar_url').eq('id', p.user_id).single(),
-              supabase.from('post_media').select('id, media_url, media_type, position').eq('post_id', p.id).order('position', { ascending: true }),
-              supabase.from('likes').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
-              supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
-              supabase.from('likes').select('*').eq('post_id', p.id).eq('user_id', currentUserId).single(),
-              supabase.from('saved_posts').select('*').eq('post_id', p.id).eq('user_id', currentUserId).single(),
-            ])
-
-          return {
-            ...p,
-            user: userProfile || { id: p.user_id, username: 'user', display_name: 'User', avatar_url: null },
-            media: mediaRows || [],
-            likesCount: likesCount || 0,
-            commentsCount: commentsCount || 0,
-            isLiked: !!userLike,
-            isSaved: !!userSaved,
-          }
-        })
-      )
-
       return {
-        posts: enriched as any[],
-        hasMore: rawPosts.length === 5,
+        posts: rawPosts as any[],
+        hasMore: rawPosts.length === 6,
       }
     },
     [supabase, currentUserId]
@@ -87,12 +61,12 @@ export function HomeFeedStream({
         />
       ))}
 
-      {/* Infinite Scroll Trigger & Spinner */}
+      {/* Infinite Scroll Trigger & End of Feed State */}
       <div ref={observerTargetRef} className="py-6 text-center">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-pink-400">
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-sky-400">
             <Loader2 className="w-5 h-5 animate-spin" />
-            Loading more posts...
+            Loading more moments...
           </div>
         ) : !hasMore && posts.length > 0 ? (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-white/10 text-xs font-semibold text-slate-400">

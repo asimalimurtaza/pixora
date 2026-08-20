@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { FollowButton } from '@/components/profile/FollowButton'
 import { ProfileMoreMenu } from '@/components/profile/ProfileMoreMenu'
 import { ProfilePostGrid } from '@/components/posts/ProfilePostGrid'
-import { Link as LinkIcon, Settings, Grid, Bookmark, Shield, Lock, BellRing } from 'lucide-react'
+import { Link as LinkIcon, Settings, Grid, Bookmark, Shield, Lock, BellRing, ShieldAlert } from 'lucide-react'
 
 interface ProfilePageProps {
   params: Promise<{
@@ -43,7 +43,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const isOwnProfile = currentUser?.id === profile.id
 
-  // 3. Check if current user is blocked by target user or has blocked target user
+  // 3. Check if current user is blocked
   let isBlocked = false
   if (currentUser && !isOwnProfile) {
     const { data: blockRow } = await supabase
@@ -57,15 +57,28 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     }
   }
 
-  // 4. Determine Follow Status via get_follow_status RPC
+  // 4. Determine Follow Status
   let followStatus: 'self' | 'following' | 'requested' | 'none' = 'none'
   if (currentUser && !isOwnProfile) {
-    const { data: statusRes } = await supabase.rpc('get_follow_status', {
-      p_viewer_id: currentUser.id,
-      p_target_id: profile.id,
-    })
-    if (statusRes) {
-      followStatus = statusRes as any
+    const { data: isFollowing } = await supabase
+      .from('follows')
+      .select('id')
+      .eq('follower_id', currentUser.id)
+      .eq('following_id', profile.id)
+      .single()
+
+    if (isFollowing) {
+      followStatus = 'following'
+    } else {
+      const { data: isRequested } = await supabase
+        .from('follow_requests')
+        .select('id')
+        .eq('requester_id', currentUser.id)
+        .eq('target_id', profile.id)
+        .eq('status', 'pending')
+        .single()
+
+      if (isRequested) followStatus = 'requested'
     }
   }
 
@@ -76,14 +89,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', profile.id),
       supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', profile.id),
       isOwnProfile
-        ? supabase.from('follow_requests').select('*', { count: 'exact', head: true }).eq('target_user_id', profile.id).eq('status', 'pending')
+        ? supabase.from('follow_requests').select('*', { count: 'exact', head: true }).eq('target_id', profile.id).eq('status', 'pending')
         : Promise.resolve({ count: 0 }),
     ])
 
-  // 6. Determine Content Visibility
+  // 6. Determine Content Visibility based on Public/Private Privacy System
   const canViewContent = !isBlocked && (isOwnProfile || !profile.is_private || followStatus === 'following')
 
-  // 7. Fetch User Posts with Media & Stats if authorized
+  // 7. Fetch User Posts if authorized
   let posts: any[] = []
   if (canViewContent) {
     const { data: fetchedPosts } = await supabase
@@ -133,7 +146,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Pending Follow Requests Banner */}
       {isOwnProfile && (pendingRequestsCount || 0) > 0 && (
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 to-purple-500/20 border border-amber-500/40 flex items-center justify-between shadow-lg">
+        <div className="p-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300">
               <BellRing className="w-5 h-5 animate-bounce" />
@@ -146,10 +159,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </div>
           <Link
-            href="/notifications"
-            className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors"
+            href="/settings/privacy"
+            className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors cursor-pointer"
           >
-            Review
+            Review Requests
           </Link>
         </div>
       )}
@@ -158,7 +171,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/10 relative overflow-hidden shadow-xl">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
           {/* Avatar */}
-          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-tr from-pink-500 via-purple-600 to-blue-500 p-1 shrink-0 shadow-xl">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-500 p-1 shrink-0 shadow-xl">
             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-3xl text-white overflow-hidden">
               {profile.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -183,7 +196,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     <span title="Private Account"><Lock className="w-4 h-4 text-amber-400" /></span>
                   )}
                 </div>
-                <p className="text-sm font-medium text-purple-400">@{profile.username}</p>
+                <p className="text-sm font-medium text-sky-400">@{profile.username}</p>
               </div>
 
               {/* Action Buttons */}
@@ -191,10 +204,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 {isOwnProfile ? (
                   <Link
                     href="/settings"
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+                    className="px-4 py-2 rounded-xl border border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/20 text-sky-300 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
                   >
-                    <Settings className="w-4 h-4 text-slate-400" />
-                    Edit Profile
+                    <Settings className="w-4 h-4" /> Edit Profile
                   </Link>
                 ) : (
                   <>
@@ -206,7 +218,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     {!isBlocked && (
                       <Link
                         href={`/messages?user=${profile.id}`}
-                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                        className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
                       >
                         Message
                       </Link>
@@ -228,7 +240,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 href={profile.website}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-pink-400 hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:underline"
               >
                 <LinkIcon className="w-3.5 h-3.5" />
                 {profile.website.replace(/^https?:\/\//, '')}
@@ -266,7 +278,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       ) : canViewContent ? (
         <div className="space-y-4">
           <div className="flex justify-center border-b border-slate-800 gap-8 text-xs font-semibold">
-            <button className="flex items-center gap-2 py-3 border-b-2 border-pink-500 text-pink-400">
+            <button className="flex items-center gap-2 py-3 border-b-2 border-sky-400 text-sky-400">
               <Grid className="w-4 h-4" /> POSTS
             </button>
             {isOwnProfile && (

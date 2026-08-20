@@ -82,20 +82,23 @@ export type Database = {
         Row: {
           id: string
           requester_id: string
-          target_user_id: string
+          target_id: string
+          target_user_id?: string
           status: 'pending' | 'accepted' | 'rejected'
           created_at: string
         }
         Insert: {
           id?: string
           requester_id: string
-          target_user_id: string
+          target_id: string
+          target_user_id?: string
           status?: 'pending' | 'accepted' | 'rejected'
           created_at?: string
         }
         Update: {
           id?: string
           requester_id?: string
+          target_id?: string
           target_user_id?: string
           status?: 'pending' | 'accepted' | 'rejected'
           created_at?: string
@@ -515,16 +518,19 @@ export type Database = {
       }
       blocks: {
         Row: {
+          id: string
           blocker_id: string
           blocked_id: string
           created_at: string
         }
         Insert: {
+          id?: string
           blocker_id: string
           blocked_id: string
           created_at?: string
         }
         Update: {
+          id?: string
           blocker_id?: string
           blocked_id?: string
           created_at?: string
@@ -575,6 +581,39 @@ export type Database = {
     }
     Views: { [_ in never]: never }
     Functions: {
+      get_home_feed_v2: {
+        Args: {
+          p_user_id: string
+          p_limit?: number
+          p_cursor?: string
+        }
+        Returns: Json
+      }
+      send_follow_request: {
+        Args: {
+          p_target_id: string
+        }
+        Returns: Json
+      }
+      respond_follow_request: {
+        Args: {
+          p_request_id: string
+          p_action: string
+        }
+        Returns: Json
+      }
+      mark_notifications_read: {
+        Args: {
+          p_notification_ids: string[]
+        }
+        Returns: void
+      }
+      mark_all_notifications_read: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: void
+      }
       get_follow_status: {
         Args: {
           p_viewer_id: string
