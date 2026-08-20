@@ -208,6 +208,13 @@ export type Database = {
             foreignKeyName: 'likes_post_id_fkey'
             columns: ['post_id']
             isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'likes_post_id_fkey'
+            columns: ['post_id']
+            isOneToOne: false
             referencedRelation: 'posts'
             referencedColumns: ['id']
           }
@@ -420,7 +427,7 @@ export type Database = {
         }
         Insert: {
           id?: string
-          reporter_id: string
+          reporter_id?: string
           post_id?: string | null
           comment_id?: string | null
           reason: string
@@ -454,7 +461,22 @@ export type Database = {
           blocked_id?: string
           created_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'blocks_blocker_id_fkey'
+            columns: ['blocker_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'blocks_blocked_id_fkey'
+            columns: ['blocked_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       saved_posts: {
         Row: {
@@ -492,6 +514,67 @@ export type Database = {
         }
         Returns: string
       }
+      get_home_feed: {
+        Args: {
+          p_user_id: string
+          p_limit?: number
+          p_cursor_created_at?: string
+          p_cursor_id?: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          caption: string | null
+          visibility: 'public' | 'followers_only' | 'private'
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      get_explore_feed: {
+        Args: {
+          p_viewer_id?: string
+          p_limit?: number
+          p_cursor_created_at?: string
+          p_cursor_id?: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          caption: string | null
+          visibility: 'public' | 'followers_only' | 'private'
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      get_trending_posts: {
+        Args: {
+          p_viewer_id?: string
+          p_limit?: number
+        }
+        Returns: {
+          id: string
+          user_id: string
+          caption: string | null
+          visibility: 'public' | 'followers_only' | 'private'
+          created_at: string
+          updated_at: string
+          engagement_score: number
+        }[]
+      }
+      get_suggested_users: {
+        Args: {
+          p_user_id: string
+          p_limit?: number
+        }
+        Returns: {
+          id: string
+          username: string
+          display_name: string | null
+          avatar_url: string | null
+          bio: string | null
+          mutual_count: number
+        }[]
+      }
     }
     Enums: { [_ in never]: never }
     CompositeTypes: { [_ in never]: never }
@@ -507,3 +590,4 @@ export type Comment = Database['public']['Tables']['comments']['Row']
 export type Story = Database['public']['Tables']['stories']['Row']
 export type Message = Database['public']['Tables']['messages']['Row']
 export type Notification = Database['public']['Tables']['notifications']['Row']
+export type Block = Database['public']['Tables']['blocks']['Row']
