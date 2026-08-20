@@ -1,10 +1,10 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Sidebar } from '@/components/navigation/Sidebar'
-import { MobileNav } from '@/components/navigation/MobileNav'
+import { NavigationRail } from '@/components/navigation/NavigationRail'
+import { ContextRail } from '@/components/navigation/ContextRail'
+import { MobileDock } from '@/components/navigation/MobileDock'
 import { Header } from '@/components/navigation/Header'
-import { RightSidebar } from '@/components/navigation/RightSidebar'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -17,7 +17,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
     redirect('/login')
   }
 
-  // Fetch application profile for current user
+  // Fetch current user application profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('id, username, display_name, avatar_url')
@@ -26,20 +26,20 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen flex bg-slate-950 text-slate-100">
-      {/* Left Desktop Sidebar */}
-      <Sidebar userProfile={profile} />
+      {/* Compact Desktop Navigation Rail */}
+      <NavigationRail userProfile={profile} />
 
-      {/* Main Content Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 md:pb-0">
+      {/* Main Workspace */}
+      <div className="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
         <Header />
-        <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex gap-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex gap-8">
           <div className="flex-1 min-w-0">{children}</div>
-          <RightSidebar currentUserProfile={profile} />
+          <ContextRail currentUserProfile={profile} />
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <MobileNav username={profile?.username} />
+      {/* Floating Mobile Bottom Dock */}
+      <MobileDock username={profile?.username} />
     </div>
   )
 }

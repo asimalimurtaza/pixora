@@ -2,42 +2,63 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
-type Theme = 'dark' | 'light'
+export type ThemeMode = 'dark' | 'light' | 'system'
 
 interface ThemeContextType {
-  theme: Theme
-  toggleTheme: () => void
+  themeMode: ThemeMode
+  setThemeMode: (mode: ThemeMode) => void
+  activeTheme: 'dark' | 'light'
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('dark')
+  const [activeTheme, setActiveTheme] = useState<'dark' | 'light'>('dark')
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('pixora-theme') as Theme
-    if (savedTheme) {
-      setTheme(savedTheme)
-      if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-theme')
-      }
+  const applyTheme = (mode: ThemeMode) => {
+    let resolved: 'dark' | 'light' = 'dark'
+    if (mode === 'system') {
+      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    } else {
+      resolved = mode
     }
-  }, [])
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(nextTheme)
-    localStorage.setItem('pixora-theme', nextTheme)
+    setActiveTheme(resolved)
 
-    if (nextTheme === 'light') {
+    if (resolved === 'light') {
       document.documentElement.classList.add('light-theme')
+      document.documentElement.classList.remove('dark')
     } else {
       document.documentElement.classList.remove('light-theme')
+      document.documentElement.classList.add('dark')
     }
   }
 
+  useEffect(() => {
+    const savedMode = (localStorage.getItem('pixora-theme-mode') as ThemeMode) || 'dark'
+    setThemeModeState(savedMode)
+    applyTheme(savedMode)
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleSystemChange = () => {
+      if (localStorage.getItem('pixora-theme-mode') === 'system') {
+        applyTheme('system')
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleSystemChange)
+    return () => mediaQuery.removeEventListener('change', handleSystemChange)
+  }, [])
+
+  const setThemeMode = (mode: ThemeMode) => {
+    setThemeModeState(mode)
+    localStorage.setItem('pixora-theme-mode', mode)
+    applyTheme(mode)
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ themeMode, setThemeMode, activeTheme }}>
       {children}
     </ThemeContext.Provider>
   )

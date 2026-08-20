@@ -2,74 +2,156 @@
 
 @layer base {
   :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-card: rgba(30, 41, 59, 0.7);
-    --border-color: rgba(255, 255, 255, 0.1);
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
-    --brand-pink: #ec4899;
-    --brand-purple: #8b5cf6;
-    --brand-blue: #3b82f6;
+    --bg-primary: #090d16;
+    --bg-surface: #111827;
+    --bg-elevated: #1f2937;
+    --bg-glass: rgba(17, 24, 39, 0.75);
+    --border-subtle: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.2);
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --accent-indigo: #818cf8;
+    --accent-cyan: #38bdf8;
+    --accent-gradient: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
   }
 
   .light-theme {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --bg-card: rgba(255, 255, 255, 0.85);
-    --border-color: rgba(0, 0, 0, 0.08);
+    /* Pantone Pastel Light Theme Palette */
+    --bg-primary: #fcfaff;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f8fafc;
+    --bg-glass: rgba(255, 255, 255, 0.88);
+    --border-subtle: #e2e8f0;
+    --border-strong: #cbd5e1;
     --text-primary: #0f172a;
-    --text-secondary: #64748b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+
+    /* Pantone Pastel Colors */
+    --pastel-pink: #fce7f3;
+    --pastel-pink-text: #9d174d;
+    --pastel-purple: #f3e8ff;
+    --pastel-purple-text: #6b21a8;
+    --pastel-blue: #e0f2fe;
+    --pastel-blue-text: #075985;
+    --pastel-mint: #dcfce7;
+    --pastel-mint-text: #166534;
   }
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Glassmorphism card utility */
-.glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
+/* Dark Mode Soft Pastel Indigo Hover States (Replaces Dull Gray) */
+.hover\:bg-slate-900:hover,
+.hover\:bg-slate-900\/40:hover,
+.hover\:bg-slate-900\/50:hover,
+.hover\:bg-slate-900\/60:hover,
+.hover\:bg-slate-800:hover,
+.hover\:bg-slate-800\/40:hover,
+.hover\:bg-slate-800\/50:hover,
+.hover\:bg-slate-800\/60:hover {
+  background-color: rgba(99, 102, 241, 0.14) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
 }
 
-.glass-input {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+/* Complete Light Theme Overrides */
+.light-theme .bg-slate-950,
+.light-theme .bg-slate-950\/60,
+.light-theme .bg-slate-950\/70,
+.light-theme .bg-slate-950\/80,
+.light-theme .bg-slate-950\/90 {
+  background-color: var(--bg-primary) !important;
 }
 
+.light-theme .bg-slate-900,
+.light-theme .bg-slate-900\/40,
+.light-theme .bg-slate-900\/50,
+.light-theme .bg-slate-900\/60,
+.light-theme .bg-slate-900\/80,
+.light-theme .bg-slate-900\/90 {
+  background-color: var(--bg-surface) !important;
+}
+
+.light-theme .bg-slate-800,
+.light-theme .bg-slate-800\/40,
+.light-theme .bg-slate-800\/50,
+.light-theme .bg-slate-800\/60,
+.light-theme .bg-slate-800\/90 {
+  background-color: var(--bg-elevated) !important;
+}
+
+.light-theme .text-white,
+.light-theme .text-slate-100,
+.light-theme .text-slate-200 {
+  color: var(--text-primary) !important;
+}
+
+.light-theme .text-slate-300,
+.light-theme .text-slate-400 {
+  color: var(--text-secondary) !important;
+}
+
+.light-theme .border-white\/10,
+.light-theme .border-slate-800,
+.light-theme .border-slate-800\/60,
+.light-theme .border-slate-800\/80,
+.light-theme .border-slate-700,
+.light-theme .border-slate-700\/50,
+.light-theme .border-slate-700\/80 {
+  border-color: var(--border-subtle) !important;
+}
+
+/* Pantone Pastel Light Mode Hover Overrides (Soft Pastel Purple/Lavender) */
+.light-theme .hover\:bg-slate-900:hover,
+.light-theme .hover\:bg-slate-900\/40:hover,
+.light-theme .hover\:bg-slate-900\/50:hover,
+.light-theme .hover\:bg-slate-900\/60:hover,
+.light-theme .hover\:bg-slate-800:hover,
+.light-theme .hover\:bg-slate-800\/40:hover,
+.light-theme .hover\:bg-slate-800\/50:hover,
+.light-theme .hover\:bg-slate-800\/60:hover {
+  background-color: var(--pastel-purple) !important;
+  color: var(--pastel-purple-text) !important;
+  border-color: #d8b4fe !important;
+}
+
+/* Outlined Pantone Pastel Active Navigation & Cards */
+.light-theme .active-nav-item,
+.light-theme .bg-indigo-500\/20,
+.light-theme .bg-sky-500\/20 {
+  background-color: var(--pastel-purple) !important;
+  color: var(--pastel-purple-text) !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+/* Light Mode Outlined Buttons & Soft Shadows */
+.light-theme .glass-card,
 .light-theme .glass-input {
-  background: rgba(241, 245, 249, 0.8);
-  color: #0f172a;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.12) !important;
 }
 
-/* Vibrant Gradient Text */
-.gradient-text {
-  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.light-theme .gradient-btn {
+  background: transparent !important;
+  border: 1px solid #818cf8 !important;
+  color: #4338ca !important;
+  box-shadow: none !important;
 }
 
-.gradient-btn {
-  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
-  transition: all 0.25s ease;
+.light-theme .gradient-btn:hover {
+  background: var(--pastel-purple) !important;
 }
 
-.gradient-btn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px -6px rgba(236, 72, 153, 0.4);
-}
-
-/* Custom Scrollbar */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -80,10 +162,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(156, 163, 175, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(156, 163, 175, 0.5);
 }

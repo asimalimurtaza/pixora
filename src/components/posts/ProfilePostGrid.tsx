@@ -70,9 +70,9 @@ export function ProfilePostGrid({ posts, currentUserId }: ProfilePostGridProps) 
           <div className="relative w-full max-w-xl my-8">
             <button
               onClick={() => setSelectedPost(null)}
-              className="absolute -top-10 right-0 text-slate-300 hover:text-white font-bold text-sm cursor-pointer"
+              className="absolute -top-10 right-0 text-slate-300 hover:text-white font-semibold text-xs cursor-pointer"
             >
-              Close ✕
+              Close
             </button>
             <PostCard
               post={selectedPost}

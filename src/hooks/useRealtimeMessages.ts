@@ -4,17 +4,14 @@ import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Message } from '@/types/database'
 
-export function useRealtimeMessages(
-  conversationId: string,
-  initialMessages: Message[] = []
-) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+export function useRealtimeMessages(conversationId: string) {
+  const [messages, setMessages] = useState<Message[]>([])
   const [status, setStatus] = useState<'SUBSCRIBED' | 'CONNECTING' | 'DISCONNECTED'>('CONNECTING')
   const supabase = createClient()
 
   useEffect(() => {
-    setMessages(initialMessages)
-  }, [initialMessages])
+    setMessages([])
+  }, [conversationId])
 
   useEffect(() => {
     if (!conversationId) return

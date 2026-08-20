@@ -107,7 +107,7 @@ export function ConversationList({
             const isOnline = isUserOnline(item.other_user.id)
             const lastMsgText = item.last_message?.deleted_at
               ? 'Message deleted'
-              : item.last_message?.content || (item.last_message?.attachment_url ? '📷 Image Attachment' : 'No messages yet')
+              : item.last_message?.content || (item.last_message?.attachment_url ? 'Image Attachment' : 'No messages yet')
 
             return (
               <div
