@@ -433,16 +433,27 @@ CREATE POLICY "Users can record story view"
 ON public.story_views FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 -- CONVERSATIONS & MESSAGES RLS
+CREATE OR REPLACE FUNCTION public.is_conversation_member(p_conversation_id UUID, p_user_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.conversation_members
+        WHERE conversation_id = p_conversation_id AND user_id = p_user_id
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
 CREATE POLICY "Members can view conversations" 
 ON public.conversations FOR SELECT TO authenticated 
 USING (
-    EXISTS (SELECT 1 FROM public.conversation_members WHERE conversation_id = conversations.id AND user_id = auth.uid())
+    public.is_conversation_member(id, auth.uid())
 );
 
 CREATE POLICY "Members can view conversation members" 
 ON public.conversation_members FOR SELECT TO authenticated 
 USING (
-    EXISTS (SELECT 1 FROM public.conversation_members cm WHERE cm.conversation_id = conversation_members.conversation_id AND cm.user_id = auth.uid())
+    user_id = auth.uid()
+    OR public.is_conversation_member(conversation_id, auth.uid())
 );
 
 CREATE POLICY "Members can insert conversation members" 
@@ -451,7 +462,7 @@ ON public.conversation_members FOR INSERT TO authenticated WITH CHECK (true);
 CREATE POLICY "Members can view messages" 
 ON public.messages FOR SELECT TO authenticated 
 USING (
-    EXISTS (SELECT 1 FROM public.conversation_members WHERE conversation_id = messages.conversation_id AND user_id = auth.uid())
+    public.is_conversation_member(conversation_id, auth.uid())
 );
 
 CREATE POLICY "Members can send messages" 

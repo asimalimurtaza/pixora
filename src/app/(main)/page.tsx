@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { HomeFeedStream } from '@/components/feed/HomeFeedStream'
+import { StoryRingRow } from '@/components/stories/StoryRingRow'
 import { Sparkles, PlusSquare, Compass } from 'lucide-react'
 
 export const metadata = {
@@ -57,32 +58,8 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {/* Stories Carousel Placeholder */}
-      <div className="p-4 rounded-3xl glass-card border border-white/10 shadow-lg overflow-x-auto">
-        <div className="flex items-center gap-4">
-          {/* Create Story Badge */}
-          <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group">
-            <div className="w-14 h-14 rounded-full bg-slate-800 border-2 border-dashed border-pink-500/60 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
-              <PlusSquare className="w-6 h-6" />
-            </div>
-            <span className="text-[10px] font-semibold text-slate-300">Your Story</span>
-          </div>
-
-          {/* Dummy Stories Placeholders */}
-          {['travel_vibes', 'alex_art', 'sam_tech', 'maya_shots'].map((uname, idx) => (
-            <div key={uname} className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-amber-500 p-0.5 group-hover:scale-105 transition-transform">
-                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-white">
-                  {uname[0].toUpperCase()}
-                </div>
-              </div>
-              <span className="text-[10px] font-medium text-slate-400 truncate max-w-[60px]">
-                {uname}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Live Stories Ring Tray */}
+      <StoryRingRow currentUserId={user?.id} />
 
       {/* Main Feed Stream */}
       {initialPosts.length === 0 ? (
