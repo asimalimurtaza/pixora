@@ -11,32 +11,22 @@
     --text-primary: #f9fafb;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
-    --accent-indigo: #818cf8;
-    --accent-cyan: #38bdf8;
-    --accent-gradient: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
+    --accent-magenta: #d946ef;
+    --accent-purple: #a855f7;
+    --accent-gradient: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #6366f1 100%);
   }
 
   .light-theme {
-    /* Pantone Pastel Light Theme Palette */
-    --bg-primary: #fcfaff;
+    /* Clean Off-white Slate Backgrounds with Magenta Outlines */
+    --bg-primary: #f8fafc;
     --bg-surface: #ffffff;
-    --bg-elevated: #f8fafc;
-    --bg-glass: rgba(255, 255, 255, 0.88);
+    --bg-elevated: #f1f5f9;
+    --bg-glass: rgba(255, 255, 255, 0.92);
     --border-subtle: #e2e8f0;
     --border-strong: #cbd5e1;
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --text-muted: #94a3b8;
-
-    /* Pantone Pastel Colors */
-    --pastel-pink: #fce7f3;
-    --pastel-pink-text: #9d174d;
-    --pastel-purple: #f3e8ff;
-    --pastel-purple-text: #6b21a8;
-    --pastel-blue: #e0f2fe;
-    --pastel-blue-text: #075985;
-    --pastel-mint: #dcfce7;
-    --pastel-mint-text: #166534;
   }
 }
 
@@ -48,7 +38,7 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Dark Mode Soft Pastel Indigo Hover States (Replaces Dull Gray) */
+/* Dark Mode Outlined Magenta Hover States */
 .hover\:bg-slate-900:hover,
 .hover\:bg-slate-900\/40:hover,
 .hover\:bg-slate-900\/50:hover,
@@ -57,9 +47,9 @@ body {
 .hover\:bg-slate-800\/40:hover,
 .hover\:bg-slate-800\/50:hover,
 .hover\:bg-slate-800\/60:hover {
-  background-color: rgba(99, 102, 241, 0.14) !important;
-  color: #a5b4fc !important;
-  border-color: rgba(99, 102, 241, 0.35) !important;
+  background-color: transparent !important;
+  color: #e879f9 !important;
+  border-color: rgba(217, 70, 239, 0.45) !important;
 }
 
 /* Complete Light Theme Overrides */
@@ -109,7 +99,18 @@ body {
   border-color: var(--border-subtle) !important;
 }
 
-/* Pantone Pastel Light Mode Hover Overrides (Soft Pastel Purple/Lavender) */
+/* Light Mode Outlined Magenta Active Nav & Hover (Clean White BG + Magenta Border) */
+.light-theme .active-nav-item,
+.light-theme .bg-indigo-500\/20,
+.light-theme .bg-sky-500\/20,
+.light-theme .bg-pink-500\/20,
+.light-theme .bg-fuchsia-500\/20 {
+  background-color: #ffffff !important;
+  color: #c026d3 !important;
+  border: 1px solid #d946ef !important;
+  font-weight: 700;
+}
+
 .light-theme .hover\:bg-slate-900:hover,
 .light-theme .hover\:bg-slate-900\/40:hover,
 .light-theme .hover\:bg-slate-900\/50:hover,
@@ -118,37 +119,53 @@ body {
 .light-theme .hover\:bg-slate-800\/40:hover,
 .light-theme .hover\:bg-slate-800\/50:hover,
 .light-theme .hover\:bg-slate-800\/60:hover {
-  background-color: var(--pastel-purple) !important;
-  color: var(--pastel-purple-text) !important;
-  border-color: #d8b4fe !important;
+  background-color: #ffffff !important;
+  color: #c026d3 !important;
+  border-color: #e879f9 !important;
 }
 
-/* Outlined Pantone Pastel Active Navigation & Cards */
-.light-theme .active-nav-item,
-.light-theme .bg-indigo-500\/20,
-.light-theme .bg-sky-500\/20 {
-  background-color: var(--pastel-purple) !important;
-  color: var(--pastel-purple-text) !important;
-  border: 1px solid #d8b4fe !important;
-}
-
-/* Light Mode Outlined Buttons & Soft Shadows */
-.light-theme .glass-card,
-.light-theme .glass-input {
+/* Glassmorphism & Light Mode Outlined Cards */
+.glass-card,
+.glass-input {
   background: var(--bg-glass);
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.12) !important;
+}
+
+.light-theme .glass-card,
+.light-theme .glass-input {
+  background: var(--bg-surface);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.08) !important;
 }
 
 .light-theme .gradient-btn {
   background: transparent !important;
-  border: 1px solid #818cf8 !important;
-  color: #4338ca !important;
+  border: 1px solid #d946ef !important;
+  color: #c026d3 !important;
   box-shadow: none !important;
 }
 
 .light-theme .gradient-btn:hover {
-  background: var(--pastel-purple) !important;
+  background: #fdf4ff !important;
+}
+
+/* Signature Pixora Gradient Text */
+.gradient-text {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-btn {
+  background: var(--accent-gradient);
+  color: #ffffff !important;
+  transition: all 0.25s ease;
+}
+
+.gradient-btn:hover {
+  opacity: 0.94;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px -6px rgba(217, 70, 239, 0.35);
 }
 
 /* Custom Scrollbars */

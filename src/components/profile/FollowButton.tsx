@@ -58,7 +58,7 @@ export function FollowButton({
           .from('follow_requests')
           .delete()
           .eq('requester_id', user.id)
-          .eq('target_user_id', targetUserId)
+          .eq('target_id', targetUserId)
 
         if (error) {
           showToast(error.message, 'error')
@@ -68,34 +68,22 @@ export function FollowButton({
           showToast('Cancelled follow request', 'info')
         }
       } else {
-        // Follow or Request
-        if (isPrivate) {
-          const { error } = await supabase.from('follow_requests').insert({
-            requester_id: user.id,
-            target_user_id: targetUserId,
-            status: 'pending',
-          })
+        // Send follow or request via send_follow_request RPC
+        const { data, error } = await supabase.rpc('send_follow_request', {
+          p_target_id: targetUserId,
+        })
 
-          if (error) {
-            showToast(error.message, 'error')
-          } else {
-            setStatus('requested')
-            onStatusChange?.('requested')
-            showToast('Follow request sent!', 'success')
-          }
-        } else {
-          const { error } = await supabase.from('follows').insert({
-            follower_id: user.id,
-            following_id: targetUserId,
-          })
-
-          if (error) {
-            showToast(error.message, 'error')
-          } else {
-            setStatus('following')
-            onStatusChange?.('following')
-            showToast('Following user!', 'success')
-          }
+        if (error) {
+          showToast(error.message, 'error')
+        } else if (data) {
+          const resObj = data as any
+          const newStatus = resObj.status === 'requested' ? 'requested' : 'following'
+          setStatus(newStatus)
+          onStatusChange?.(newStatus)
+          showToast(
+            newStatus === 'requested' ? 'Follow request sent!' : 'Following creator!',
+            'success'
+          )
         }
       }
     } catch (err: any) {
@@ -111,7 +99,7 @@ export function FollowButton({
       disabled={loading}
       className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md cursor-pointer disabled:opacity-50 ${
         status === 'following'
-          ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+          ? 'border border-indigo-500/40 bg-indigo-500/10 text-sky-300 hover:bg-indigo-500/20'
           : status === 'requested'
           ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
           : 'gradient-btn text-white'
@@ -121,7 +109,7 @@ export function FollowButton({
         <Loader2 className="w-3.5 h-3.5 animate-spin" />
       ) : status === 'following' ? (
         <>
-          <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <UserCheck className="w-3.5 h-3.5 text-sky-400" />
           Following
         </>
       ) : status === 'requested' ? (
