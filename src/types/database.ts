@@ -270,7 +270,9 @@ export type Database = {
           id: string
           user_id: string
           media_url: string
+          media_path: string | null
           media_type: 'image' | 'video'
+          caption: string | null
           created_at: string
           expires_at: string
         }
@@ -278,7 +280,9 @@ export type Database = {
           id?: string
           user_id: string
           media_url: string
+          media_path?: string | null
           media_type?: 'image' | 'video'
+          caption?: string | null
           created_at?: string
           expires_at?: string
         }
@@ -286,11 +290,21 @@ export type Database = {
           id?: string
           user_id?: string
           media_url?: string
+          media_path?: string | null
           media_type?: 'image' | 'video'
+          caption?: string | null
           created_at?: string
           expires_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'stories_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       story_views: {
         Row: {
@@ -308,7 +322,22 @@ export type Database = {
           user_id?: string
           viewed_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'story_views_story_id_fkey'
+            columns: ['story_id']
+            isOneToOne: false
+            referencedRelation: 'stories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'story_views_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       conversations: {
         Row: {
@@ -443,8 +472,8 @@ export type Database = {
         }
         Update: {
           id?: string
-          user_id?: string
-          actor_id?: string
+          user_id: string
+          actor_id: string
           type?: 'follow' | 'like' | 'comment' | 'reply' | 'mention' | 'message'
           post_id?: string | null
           comment_id?: string | null
@@ -645,6 +674,56 @@ export type Database = {
         }
         Returns: number
       }
+      get_feed_active_stories: {
+        Args: {
+          p_viewer_id: string
+        }
+        Returns: {
+          user_id: string
+          username: string
+          display_name: string
+          avatar_url: string
+          total_stories: number
+          has_unseen: boolean
+          latest_created_at: string
+        }[]
+      }
+      get_user_active_stories: {
+        Args: {
+          p_viewer_id: string
+          p_target_user_id: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          media_url: string
+          media_path: string
+          media_type: string
+          caption: string
+          created_at: string
+          expires_at: string
+          has_viewed: boolean
+          viewer_count: number
+        }[]
+      }
+      record_story_view: {
+        Args: {
+          p_story_id: string
+        }
+        Returns: void
+      }
+      get_story_viewers: {
+        Args: {
+          p_story_id: string
+        }
+        Returns: {
+          id: string
+          username: string
+          display_name: string
+          avatar_url: string
+          viewed_at: string
+        }[]
+      }
     }
     Enums: { [_ in never]: never }
     CompositeTypes: { [_ in never]: never }
@@ -658,6 +737,7 @@ export type PostMedia = Database['public']['Tables']['post_media']['Row']
 export type Like = Database['public']['Tables']['likes']['Row']
 export type Comment = Database['public']['Tables']['comments']['Row']
 export type Story = Database['public']['Tables']['stories']['Row']
+export type StoryView = Database['public']['Tables']['story_views']['Row']
 export type Message = Database['public']['Tables']['messages']['Row']
 export type Notification = Database['public']['Tables']['notifications']['Row']
 export type Block = Database['public']['Tables']['blocks']['Row']

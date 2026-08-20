@@ -8,9 +8,11 @@ export interface UploadResult {
   path: string
 }
 
+export type StorageBucket = 'post-media' | 'avatars' | 'story-media' | 'message-attachments'
+
 export async function uploadMediaFile(
   file: File,
-  bucket: 'post-media' | 'avatars' = 'post-media'
+  bucket: StorageBucket = 'post-media'
 ): Promise<UploadResult> {
   // 1. Validation
   if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) {
