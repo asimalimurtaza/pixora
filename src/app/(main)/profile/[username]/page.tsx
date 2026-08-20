@@ -186,7 +186,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <p className="text-sm font-medium text-purple-400">@{profile.username}</p>
               </div>
 
-              {/* Actions */}
+              {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 {isOwnProfile ? (
                   <Link
@@ -203,6 +203,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       isPrivate={profile.is_private}
                       initialStatus={followStatus}
                     />
+                    {!isBlocked && (
+                      <Link
+                        href={`/messages?user=${profile.id}`}
+                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                      >
+                        Message
+                      </Link>
+                    )}
                     <ProfileMoreMenu
                       targetUserId={profile.id}
                       targetUsername={profile.username}
