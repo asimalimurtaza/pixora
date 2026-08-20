@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { FollowButton } from '@/components/profile/FollowButton'
+import { ProfileMoreMenu } from '@/components/profile/ProfileMoreMenu'
 import { ProfilePostGrid } from '@/components/posts/ProfilePostGrid'
 import { Link as LinkIcon, Settings, Grid, Bookmark, Shield, Lock, BellRing } from 'lucide-react'
 
@@ -42,23 +43,33 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const isOwnProfile = currentUser?.id === profile.id
 
-  // 3. Determine Follow Status via get_follow_status RPC
-  let followStatus: 'self' | 'following' | 'requested' | 'none' = 'none'
-  if (currentUser) {
-    if (isOwnProfile) {
-      followStatus = 'self'
-    } else {
-      const { data: statusRes } = await supabase.rpc('get_follow_status', {
-        p_viewer_id: currentUser.id,
-        p_target_id: profile.id,
-      })
-      if (statusRes) {
-        followStatus = statusRes as any
-      }
+  // 3. Check if current user is blocked by target user or has blocked target user
+  let isBlocked = false
+  if (currentUser && !isOwnProfile) {
+    const { data: blockRow } = await supabase
+      .from('blocks')
+      .select('*')
+      .or(`and(blocker_id.${currentUser.id},blocked_id.${profile.id}),and(blocker_id.${profile.id},blocked_id.${currentUser.id})`)
+      .single()
+
+    if (blockRow) {
+      isBlocked = true
     }
   }
 
-  // 4. Fetch Stats Counts
+  // 4. Determine Follow Status via get_follow_status RPC
+  let followStatus: 'self' | 'following' | 'requested' | 'none' = 'none'
+  if (currentUser && !isOwnProfile) {
+    const { data: statusRes } = await supabase.rpc('get_follow_status', {
+      p_viewer_id: currentUser.id,
+      p_target_id: profile.id,
+    })
+    if (statusRes) {
+      followStatus = statusRes as any
+    }
+  }
+
+  // 5. Fetch Stats Counts
   const [{ count: postCount }, { count: followerCount }, { count: followingCount }, { count: pendingRequestsCount }] =
     await Promise.all([
       supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
@@ -69,10 +80,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         : Promise.resolve({ count: 0 }),
     ])
 
-  // 5. Determine Content Visibility
-  const canViewContent = isOwnProfile || !profile.is_private || followStatus === 'following'
+  // 6. Determine Content Visibility
+  const canViewContent = !isBlocked && (isOwnProfile || !profile.is_private || followStatus === 'following')
 
-  // 6. Fetch User Posts with Media & Stats if authorized
+  // 7. Fetch User Posts with Media & Stats if authorized
   let posts: any[] = []
   if (canViewContent) {
     const { data: fetchedPosts } = await supabase
@@ -90,7 +101,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       .order('created_at', { ascending: false })
 
     if (fetchedPosts) {
-      // Enrich with like & comment counts & current user likes/saved
       posts = await Promise.all(
         fetchedPosts.map(async (p: any) => {
           const sortedMedia = (p.media || []).sort((a: any, b: any) => a.position - b.position)
@@ -121,7 +131,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      {/* Pending Follow Requests Banner for Account Owner */}
+      {/* Pending Follow Requests Banner */}
       {isOwnProfile && (pendingRequestsCount || 0) > 0 && (
         <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 to-purple-500/20 border border-amber-500/40 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-3">
@@ -163,7 +173,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </div>
 
-          {/* Profile Details */}
+          {/* Details */}
           <div className="flex-1 text-center sm:text-left space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
@@ -176,7 +186,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <p className="text-sm font-medium text-purple-400">@{profile.username}</p>
               </div>
 
-              {/* Action Buttons */}
+              {/* Actions */}
               <div className="flex items-center gap-2">
                 {isOwnProfile ? (
                   <Link
@@ -187,11 +197,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     Edit Profile
                   </Link>
                 ) : (
-                  <FollowButton
-                    targetUserId={profile.id}
-                    isPrivate={profile.is_private}
-                    initialStatus={followStatus}
-                  />
+                  <>
+                    <FollowButton
+                      targetUserId={profile.id}
+                      isPrivate={profile.is_private}
+                      initialStatus={followStatus}
+                    />
+                    <ProfileMoreMenu
+                      targetUserId={profile.id}
+                      targetUsername={profile.username}
+                      initialBlocked={isBlocked}
+                    />
+                  </>
                 )}
               </div>
             </div>
@@ -230,7 +247,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       </div>
 
       {/* Main Content Area */}
-      {canViewContent ? (
+      {isBlocked ? (
+        <div className="glass-card rounded-3xl p-12 text-center space-y-3 border border-rose-500/20">
+          <Shield className="w-8 h-8 text-rose-400 mx-auto" />
+          <h2 className="text-lg font-bold text-white">Profile Blocked</h2>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            You have blocked @{profile.username} or this account is unavailable.
+          </p>
+        </div>
+      ) : canViewContent ? (
         <div className="space-y-4">
           <div className="flex justify-center border-b border-slate-800 gap-8 text-xs font-semibold">
             <button className="flex items-center gap-2 py-3 border-b-2 border-pink-500 text-pink-400">

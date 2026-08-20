@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { PostCard } from '@/components/posts/PostCard'
+import { HomeFeedStream } from '@/components/feed/HomeFeedStream'
 import { Sparkles, PlusSquare, Compass } from 'lucide-react'
 
 export const metadata = {
@@ -16,39 +16,25 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let posts: any[] = []
+  let initialPosts: any[] = []
+  let initialHasMore = false
 
   if (user) {
-    // 1. Get list of user IDs that current user follows
-    const { data: followRows } = await supabase
-      .from('follows')
-      .select('following_id')
-      .eq('follower_id', user.id)
+    // Call get_home_feed RPC
+    const { data: rawPosts } = await supabase.rpc('get_home_feed', {
+      p_user_id: user.id,
+      p_limit: 5,
+    })
 
-    const followingIds = (followRows || []).map((f) => f.following_id)
-    const allowedUserIds = [user.id, ...followingIds]
+    if (rawPosts && rawPosts.length > 0) {
+      initialHasMore = rawPosts.length === 5
 
-    // 2. Query posts from allowed users
-    const { data: fetchedPosts } = await supabase
-      .from('posts')
-      .select(`
-        id,
-        user_id,
-        caption,
-        visibility,
-        created_at,
-        user:profiles!posts_user_id_fkey(id, username, display_name, avatar_url),
-        media:post_media(id, media_url, media_type, position)
-      `)
-      .in('user_id', allowedUserIds)
-      .order('created_at', { ascending: false })
-
-    if (fetchedPosts) {
-      posts = await Promise.all(
-        fetchedPosts.map(async (p: any) => {
-          const sortedMedia = (p.media || []).sort((a: any, b: any) => a.position - b.position)
-          const [{ count: likesCount }, { count: commentsCount }, { data: userLike }, { data: userSaved }] =
+      initialPosts = await Promise.all(
+        (rawPosts as any[]).map(async (p) => {
+          const [{ data: userProfile }, { data: mediaRows }, { count: likesCount }, { count: commentsCount }, { data: userLike }, { data: userSaved }] =
             await Promise.all([
+              supabase.from('profiles').select('id, username, display_name, avatar_url').eq('id', p.user_id).single(),
+              supabase.from('post_media').select('id, media_url, media_type, position').eq('post_id', p.id).order('position', { ascending: true }),
               supabase.from('likes').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
               supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', p.id),
               supabase.from('likes').select('*').eq('post_id', p.id).eq('user_id', user.id).single(),
@@ -57,7 +43,8 @@ export default async function HomePage() {
 
           return {
             ...p,
-            media: sortedMedia,
+            user: userProfile || { id: p.user_id, username: 'user', display_name: 'User', avatar_url: null },
+            media: mediaRows || [],
             likesCount: likesCount || 0,
             commentsCount: commentsCount || 0,
             isLiked: !!userLike,
@@ -70,16 +57,44 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {posts.length === 0 ? (
+      {/* Stories Carousel Placeholder */}
+      <div className="p-4 rounded-3xl glass-card border border-white/10 shadow-lg overflow-x-auto">
+        <div className="flex items-center gap-4">
+          {/* Create Story Badge */}
+          <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group">
+            <div className="w-14 h-14 rounded-full bg-slate-800 border-2 border-dashed border-pink-500/60 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
+              <PlusSquare className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-semibold text-slate-300">Your Story</span>
+          </div>
+
+          {/* Dummy Stories Placeholders */}
+          {['travel_vibes', 'alex_art', 'sam_tech', 'maya_shots'].map((uname, idx) => (
+            <div key={uname} className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-amber-500 p-0.5 group-hover:scale-105 transition-transform">
+                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-white">
+                  {uname[0].toUpperCase()}
+                </div>
+              </div>
+              <span className="text-[10px] font-medium text-slate-400 truncate max-w-[60px]">
+                {uname}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Feed Stream */}
+      {initialPosts.length === 0 ? (
         <div className="glass-card rounded-3xl p-8 sm:p-12 text-center space-y-4 border border-white/10 shadow-2xl">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 p-0.5 mx-auto shadow-lg">
             <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center">
               <Sparkles className="w-8 h-8 text-pink-400 animate-pulse" />
             </div>
           </div>
-          <h2 className="text-xl font-bold text-white">Your Feed is Ready!</h2>
+          <h2 className="text-xl font-bold text-white">Your Feed is Empty</h2>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
-            No posts in your feed yet. Publish your first photo or follow creators to see their posts here.
+            You are not following any creators yet or they haven&apos;t posted photos. Share your own photo or discover creators on Pixora!
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
@@ -97,11 +112,11 @@ export default async function HomePage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} currentUserId={user?.id} />
-          ))}
-        </div>
+        <HomeFeedStream
+          initialPosts={initialPosts as any}
+          initialHasMore={initialHasMore}
+          currentUserId={user?.id || ''}
+        />
       )}
     </div>
   )
